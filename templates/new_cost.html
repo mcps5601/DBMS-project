@@ -12,32 +12,18 @@
 </head>
 
 <body>
-	<form method="POST" action="/">
+	<form method="POST" action="/new_cost">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
 	<br>
 	<center>
-	以
-	<select name='search_options'>
-	  <option value='{{search_options}}'selected='selected' hidden>{{search_options}}</optio>
-	  <option value="ID">ID</option>
-	  <option value="Username">Username</option>
-	  <option value="Nickname">Nickname</option>
-	</select>
-	搜尋關鍵字 <input type = "text" name = "keywords" /> <br>
+	<a href="/">回到查詢頁面</a><br>
+	record_id <input type = "text" name = "record_number" /> <br>
+	id of user <input type = "text" name = "id" /> <br>
+	price <input type = "text" name = "price" /> <br>
+	item <input type = "text" name = "item" /> <br>
 	<br>
-	<input type = "submit" value="送出">
-    <a href="/new">要新增資料?</a> <a href="/sql">使用SQL語法來搜尋?</a>
-	<br>
-	<br>
-	<table border="1" cellpadding="5" cellspacing="5">
-	    {% for row in output_text %}
-		    <tr style="text-align:center">
-			{% for d in row %}
-				<td style="text-align:center">{{ d }}</td>
-			{% endfor %}
-			</tr>
-		{% endfor %}
-	</table>
+    <input type = "submit" value="送出">
+		{{ output_text }}
 	</center>
 </body>
 </html>
