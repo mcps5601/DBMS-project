@@ -12,7 +12,7 @@
 </head>
 
 <body>
-	<form method="POST" action="">
+	<form method="POST" action="/sql">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
 
 	<center>
@@ -21,10 +21,20 @@
 	<a href="/index">回到查詢頁面</a><br>
 	請輸入SQL指令
 	<br>
-	<textarea cols="50" rows="5" name='input_text'>
-	</textarea></br>
+	<textarea cols="50" rows="5" name='input_text' style="border:2px green solid;">{{input_text}}</textarea></br>
 	<br>
 	<input type = "submit" value="送出">
+	<br>
+	<br>
+	<table border="1" cellpadding="5" cellspacing="5">
+	    {% for row in output_text %}
+		    <tr style="text-align:center">
+			{% for d in row %}
+				<td style="text-align:center">{{ d }}</td>
+			{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
 	</center>
 </body>
 </html>

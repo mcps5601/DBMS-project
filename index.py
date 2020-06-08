@@ -83,6 +83,22 @@ def index():
 def sql():
     if request.method == 'GET':
         return render_template('sql.html')
+    if request.method == "POST":
+        input_text = request.form['input_text']
+        cur = mysql.connection.cursor()
+        cur.execute("{}".format(input_text))
+        results = cur.fetchall()
+
+        output_text = []
+        output_text.append(results[0].keys())
+        for i in range(len(results)):
+            tmp = []
+            for j in results[0].keys():
+                tmp.append(results[i][j])
+            output_text.append(tmp)
+        
+        return render_template('sql.html', input_text=input_text, output_text=output_text)
+
 
 @app.route("/new", methods=['GET', 'POST'])
 def new():
