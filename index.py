@@ -41,7 +41,7 @@ def logout():
 @app.route("/index", methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        return render_template("index.html")
+        return render_template("index.html", display_name=session['username'])
         #return render_template("login.html")
     if request.method == "POST":
         details = request.form
@@ -129,6 +129,44 @@ def new_cost():
         cur.close()
         output_text = 'Success!'
         return render_template('new_cost.html', output_text=output_text)
+
+@app.route("/purchase", methods=['GET', 'POST'])
+def purchase():
+    if request.method == 'GET':
+        return render_template('purchase.html')
+    if request.method == "POST":
+        userid = session['id']
+        price = request.form["price"]
+        item = request.form["item"]
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT COUNT(record_number) FROM `cost`;")
+        record_number = cur.fetchone().get('COUNT(record_number)') + 1
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO cost(record_number, userid, price, item) VALUES (%s, %s, %s, %s)", (record_number, userid, price, item))
+        mysql.connection.commit()
+        cur.close()
+        output_text = 'Success!'
+        return render_template('purchase.html', output_text=output_text)
+
+@app.route("/item", methods=['GET', 'POST'])
+def item():
+    if request.method == 'GET':
+        return render_template('item.html')
+    if request.method == "POST":
+        userid = session['id']
+        price = request.form["price"]
+        item = request.form["item"]
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT COUNT(record_number) FROM `cost`;")
+        record_number = cur.fetchone().get('COUNT(record_number)') + 1
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO cost(record_number, userid, price, item) VALUES (%s, %s, %s, %s)", (record_number, userid, price, item))
+        mysql.connection.commit()
+        cur.close()
+        output_text = 'Success!'
+        return render_template('item.html', output_text=output_text)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
