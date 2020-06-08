@@ -12,10 +12,13 @@
 </head>
 
 <body>
-	<form method="POST" action="/">
+	<form method="POST" action="/index">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
-	<br>
 	<center>
+	<a href="/">Logout</a>
+	<br><br>
+		你好！{{display_name}}
+	<br><br>
 	以
 	<select name='search_options'>
 	  <option value='{{search_options}}'selected='selected' hidden>{{search_options}}</optio>
@@ -26,7 +29,7 @@
 	搜尋關鍵字 <input type = "text" name = "keywords" /> <br>
 	<br>
 	<input type = "submit" value="送出">
-    <a href="/new">要新增資料?</a> <a href="/sql">使用SQL語法來搜尋?</a>
+    <a href="/new_cost">要新增記帳資料?</a> <a href="/sql">使用SQL語法來搜尋?</a>
 	<br>
 	<br>
 	<table border="1" cellpadding="5" cellspacing="5">

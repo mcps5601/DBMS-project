@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<title>P78081057's DBMS</title>
+</head>
+<body>
+    <div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
+    <br>
+    <center>
+    <div class="login">
+        <div class="links">
+            <a href="/new_user">New? Get registered</a>
+        </div>
+        <form action="{{ url_for('login') }}" method="post">
+            <label for="username">
+                <i class="fas fa-user"></i>
+            </label>
+            <input type="text" name="username" placeholder="Username" id="username" required>
+            <label for="password">
+                <i class="fas fa-lock"></i>
+            </label>
+            <br>
+            <input type="password" name="password" placeholder="Password" id="password" required>
+            <div class="msg">{{ msg }}</div>
+            <input type="submit" value="Login"><a href="/index" class="active">  Test mode</a>
+        </form>
+    </div>
+    </center>
+</body>
+</html>

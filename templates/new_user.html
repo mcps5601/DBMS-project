@@ -14,12 +14,13 @@
 <body>
 	<form method="POST" action="/new_user">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
-	<br>
+
 	<center>
-	<a href="/">回到查詢頁面</a><br>
-	id of user <input type = "text" name = "id" /> <br>
-	username <input type = "text" name = "username" /> <br>
-	nickname <input type = "text" name = "nickname" /> <br>
+	<br>
+	<a href="/">回到登入頁面</a><br>
+	<input type = "text" name = "username" placeholder="Username"/> <br>
+	<input type = "text" name = "password" placeholder="Password"/> <br>
+	<input type = "text" name = "nickname" placeholder="Nickname"/> <br>
 	<br>
     <input type = "submit" value="送出">
 		{{ output_text }}

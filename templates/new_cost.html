@@ -14,13 +14,13 @@
 <body>
 	<form method="POST" action="/new_cost">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
-	<br>
+
 	<center>
-	<a href="/">回到查詢頁面</a><br>
-	record_id <input type = "text" name = "record_number" /> <br>
-	id of user <input type = "text" name = "id" /> <br>
-	price <input type = "text" name = "price" /> <br>
-	item <input type = "text" name = "item" /> <br>
+	<a href="/">Logout</a>
+	<br><br>
+	<a href="/index">回到查詢頁面</a><br>
+	<input type = "text" name = "price" placeholder="Price" /> <br>
+	<input type = "text" name = "item" placeholder="Item"/> <br>
 	<br>
     <input type = "submit" value="送出">
 		{{ output_text }}
