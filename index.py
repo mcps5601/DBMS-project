@@ -238,18 +238,44 @@ def edit1():
         record_number = request.args.get('record_number')
         session['record_number'] = record_number
         cur = mysql.connection.cursor()
-        #cur.execute("SELECT * FROM `cost` WHERE `record_number`={};".format(record_number))
-        cur.execute("SELECT * FROM `cost`, `item_details`, `purchase_info` WHERE cost.record_number=item_details.record_number AND cost.record_number=purchase_info.record_number AND cost.record_number={};".format(record_number))
-        search_results = cur.fetchone()
-        price = search_results['price']
-        item = search_results['item']
-        editer = search_results['edit_userid']
-        itemtype = search_results['type']
-        brand = search_results['brand']
-        date = search_results['purchase_date']
-        place = search_results['place']
-        return render_template('edit1.html', display_name=session['username'],
-                                record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, date=date, place=place)
+        cur.execute("SELECT * FROM `cost` WHERE `record_number`={};".format(record_number))
+        #cur.execute("SELECT * FROM `cost`, `item_details`, `purchase_info` WHERE cost.record_number=item_details.record_number AND cost.record_number=purchase_info.record_number AND cost.record_number={};".format(record_number))
+        absolute_results = cur.fetchone()
+        price = absolute_results['price']
+        item = absolute_results['item']
+        editer = absolute_results['edit_userid']
+
+        # search the `item_details` table
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM `item_details` WHERE `record_number`={};".format(record_number))
+        item_results = cur.fetchone()
+
+        # search the `purchase_info` table
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM `purchase_info` WHERE `record_number`={};".format(record_number))
+        purchase_results = cur.fetchone()
+
+        if item_results is not None and purchase_results is None:
+            itemtype = item_results['type']
+            brand = item_results['brand']
+            return render_template('edit1.html', display_name=session['username'],
+                                    record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand)
+
+        elif item_results is None and purchase_results is not None:
+            date = purchase_results['purchase_date']
+            place = purchase_results['place']
+            return render_template('edit1.html', display_name=session['username'],
+                                    record_number=record_number, price=price, item=item, editer=editer, date=date, place=place)         
+
+        elif item_results is not None and purchase_results is not None:
+            itemtype = item_results['type']
+            brand = item_results['brand']
+            date = purchase_results['purchase_date']
+            place = purchase_results['place']
+            return render_template('edit1.html', display_name=session['username'],
+                                    record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, date=date, place=place)
+        else:
+            return render_template('edit1.html', display_name=session['username'], record_number=record_number, price=price, item=item, editer=editer)
     if request.method == "POST":
         #record_number = int(request.data)
         #session['record_number'] = record_number
