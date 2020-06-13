@@ -67,8 +67,17 @@ def index():
             if request.form['keywords']=='all':
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid")
             else:
-                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.nickname='{}'".format(str(request.form['keywords'])))
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost, user_info WHERE users.id=cost.userid AND users.id=user_info.id AND user_info.nickname='{}'".format(str(request.form['keywords'])))
             results = cur.fetchall()
+
+        if option == 'Itemname':
+            cur = mysql.connection.cursor()
+            if request.form['keywords']=='all':
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid")
+            else:
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND cost.item='{}'".format(str(request.form['keywords'])))
+            results = cur.fetchall()
+
         output_text = []
         col_names = results[0].keys()
         new_col = 'actions'
@@ -126,7 +135,6 @@ def new_user():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        nickname = request.form["nickname"]
         cur = mysql.connection.cursor()
         cur.execute("SELECT COUNT(id) FROM `users`;")
         number = cur.fetchone().get('COUNT(id)')
@@ -134,7 +142,7 @@ def new_user():
         userid = number+1
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO users(id, username, nickname, password) VALUES (%s, %s, %s, %s)", (userid, username, nickname, password))
+        cur.execute("INSERT INTO users(id, username, password) VALUES (%s, %s, %s)", (userid, username, password))
         mysql.connection.commit()
         cur.close()
         output_text = 'Success!'
@@ -291,22 +299,61 @@ def update():
         editer = request.form["editer"]
         itemtype = str(request.form["itemtype"])
         brand = str(request.form["brand"])
-        
+        date = str(request.form["date"])
+        place = request.form["place"]
+
         # Update the cost table
         cur = mysql.connection.cursor()
         cur.execute("UPDATE `cost` SET `price`={}, `item`='{}', `edit_userid`={} WHERE `record_number`={}".format(price, item, editer, record_number))
         mysql.connection.commit()
         cur.close()
 
-        # Update the item table
+        # search the `item_details` table
         cur = mysql.connection.cursor()
-        cur.execute("UPDATE `item_details` SET `type`='{}', `brand`='{}' WHERE `record_number`={}".format(itemtype, brand, record_number))
-        mysql.connection.commit()
-        cur.close()
+        cur.execute("SELECT * FROM `item_details` WHERE `record_number`={}".format(record_number))
+        item_results = cur.fetchone()
 
-        output_text = 'Success!'
-        return render_template('edit1.html', display_name=session['username'],
+        # search the `purchase_info` table
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM `purchase_info` WHERE `record_number`={}".format(record_number))
+        purchase_results = cur.fetchone()
+
+        if item_results is not None and purchase_results is None:
+            # Update the `item_details` table
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE `item_details` SET `type`='{}', `brand`='{}' WHERE `record_number`={}".format(itemtype, brand, record_number))
+            mysql.connection.commit()
+            cur.close()
+            output_text = 'Success!'
+            return render_template('edit1.html', display_name=session['username'],
                                 record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, output_text=output_text)
+
+        elif purchase_results is not None and item_results is None:
+            # Update the `purchase_info` table
+            cur = mysql.connection.cursor()
+            print("UPDATE `purchase_info` SET `date`='{}', `place`='{}' WHERE `record_number`={}".format(date, place, record_number))
+            cur.execute("UPDATE `purchase_info` SET `purchase_date`='{}', `place`='{}' WHERE `record_number`={}".format(date, place, record_number))
+            mysql.connection.commit()
+            cur.close()
+            output_text = 'Success!'
+            return render_template('edit1.html', display_name=session['username'],
+                                record_number=record_number, price=price, item=item, editer=editer, date=date, place=place, output_text=output_text)
+
+        elif item_results is not None and purchase_results is not None:
+            # Update the `item_details` table
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE `item_details` SET `type`='{}', `brand`='{}' WHERE `record_number`={}".format(itemtype, brand, record_number))
+            mysql.connection.commit()
+            cur.close()
+
+            # Update the `purchase_info` table
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE `purchase_info` SET `purchase_date`='{}', `place`='{}' WHERE `record_number`={}".format(date, place, record_number))
+            mysql.connection.commit()
+            cur.close()
+            output_text = 'Success!'
+            return render_template('edit1.html', display_name=session['username'],
+                                record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, date=date, place=place, output_text=output_text)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
