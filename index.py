@@ -148,12 +148,15 @@ def new_cost():
         userid = session['id']
         price = request.form["price"]
         item = request.form["item"]
+        editer = request.form["editer"]
         cur = mysql.connection.cursor()
-        cur.execute("SELECT COUNT(record_number) FROM `cost`;")
-        record_number = cur.fetchone().get('COUNT(record_number)') + 1
+        cur.execute("SELECT MAX(record_number) FROM `cost`;")
+        record_number = cur.fetchone().get('MAX(record_number)') + 1
+        #print(results)
+        #print(cur.fetchone()['record_number'])
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO cost(record_number, userid, price, item) VALUES (%s, %s, %s, %s)", (record_number, userid, price, item))
+        cur.execute("INSERT INTO cost(record_number, userid, price, item, edit_userid) VALUES (%s, %s, %s, %s, %s)", (record_number, userid, price, item, editer))
         mysql.connection.commit()
         cur.close()
         output_text = 'Success!'
@@ -165,33 +168,29 @@ def purchase():
         return render_template('purchase.html')
     if request.method == "POST":
         userid = session['id']
-        price = request.form["price"]
-        item = request.form["item"]
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT COUNT(record_number) FROM `cost`;")
-        record_number = cur.fetchone().get('COUNT(record_number)') + 1
+        record_number = request.form["record_number"]
+        date = request.form["date"]
+        place = request.form["place"]
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO cost(record_number, userid, price, item) VALUES (%s, %s, %s, %s)", (record_number, userid, price, item))
+        cur.execute("INSERT INTO purchase_info(record_number, purchase_date, place) VALUES (%s, %s, %s)", (record_number, date, place))
         mysql.connection.commit()
         cur.close()
         output_text = 'Success!'
         return render_template('purchase.html', output_text=output_text)
 
 @app.route("/item", methods=['GET', 'POST'])
-def item():
+def new_item():
     if request.method == 'GET':
         return render_template('item.html')
     if request.method == "POST":
         userid = session['id']
-        price = request.form["price"]
-        item = request.form["item"]
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT COUNT(record_number) FROM `cost`;")
-        record_number = cur.fetchone().get('COUNT(record_number)') + 1
+        itemtype = request.form["itemtype"]
+        brand = request.form["brand"]
+        record_number = request.form["record_number"]
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO cost(record_number, userid, price, item) VALUES (%s, %s, %s, %s)", (record_number, userid, price, item))
+        cur.execute("INSERT INTO item_details(record_number, type, brand) VALUES (%s, %s, %s)", (record_number, itemtype, brand))
         mysql.connection.commit()
         cur.close()
         output_text = 'Success!'
@@ -201,11 +200,51 @@ def item():
 def edit1():
     if request.method == 'GET':
         record_number = request.args.get('record_number')
-        return render_template('edit1.html', display_name=session['username'], record_number=record_number)
+        session['record_number'] = record_number
+        cur = mysql.connection.cursor()
+        #cur.execute("SELECT * FROM `cost` WHERE `record_number`={};".format(record_number))
+        cur.execute("SELECT * FROM `cost`, `item_details`, `purchase_info` WHERE cost.record_number=item_details.record_number AND cost.record_number=purchase_info.record_number AND cost.record_number={};".format(record_number))
+        search_results = cur.fetchone()
+        price = search_results['price']
+        item = search_results['item']
+        editer = search_results['edit_userid']
+        itemtype = search_results['type']
+        brand = search_results['brand']
+        date = search_results['purchase_date']
+        place = search_results['place']
+        return render_template('edit1.html', display_name=session['username'],
+                                record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, date=date, place=place)
     if request.method == "POST":
-        record_number = int(request.data)
+        #record_number = int(request.data)
+        #session['record_number'] = record_number
         return redirect(f"http://localhost:5000/edit1?record_number={record_number}", code=302)
         #return render_template('edit1.html', display_name=session['username'], record_number=record_number)
+
+@app.route("/edit2", methods=['GET', 'POST'])
+def update():
+    if request.method == "POST":
+        record_number = int(session['record_number'])
+        price = request.form["price"]
+        item = str(request.form["item"])
+        editer = request.form["editer"]
+        itemtype = str(request.form["itemtype"])
+        brand = str(request.form["brand"])
+        
+        # Update the cost table
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE `cost` SET `price`={}, `item`='{}', `edit_userid`={} WHERE `record_number`={}".format(price, item, editer, record_number))
+        mysql.connection.commit()
+        cur.close()
+
+        # Update the item table
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE `item_details` SET `type`='{}', `brand`='{}' WHERE `record_number`={}".format(itemtype, brand, record_number))
+        mysql.connection.commit()
+        cur.close()
+
+        output_text = 'Success!'
+        return render_template('edit1.html', display_name=session['username'],
+                                record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, output_text=output_text)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
