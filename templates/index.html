@@ -12,9 +12,9 @@
 </head>
 
 <body>
+	<center>
 	<form method="POST" action="/index">
 	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
-	<center>
 	<a href="/">Logout</a>
 	<br><br>
 		你好！{{display_name}}
@@ -29,18 +29,44 @@
 	搜尋關鍵字 <input type = "text" name = "keywords" /> <br>
 	<br>
 	<input type = "submit" value="送出">
-    <a href="/new">要新增記帳資料?</a> <a href="/sql">使用SQL語法來搜尋?</a>
+    <a href="/new">新增</a> <a href="/edit1">編輯</a> <a href="/sql">使用SQL</a>
+	</form>
 	<br>
 	<br>
 	<table border="1" cellpadding="5" cellspacing="5">
+		<tr style="text-align:center">
+		{% for row in col_names %}
+			<td style="text-align:center">{{ row }}</td>
+		{% endfor %}<td style="text-align:center">{{ new_col }}</td>
+		</tr>
 	    {% for row in output_text %}
 		    <tr style="text-align:center">
 			{% for d in row %}
 				<td style="text-align:center">{{ d }}</td>
 			{% endfor %}
+				<td style="text-align:center">
+				<button onclick="loadDoc({{row[2]}})">編輯</button><button onclick="loadDoc({{row[2]}})">刪除</button></td>
 			</tr>
 		{% endfor %}
 	</table>
 	</center>
+	<script>
+		function lalala(record_number){
+			console.log(record_number)
+		}
+		function loadDoc(record_number) {
+			console.log(record_number)
+		  var xhttp = new XMLHttpRequest();
+		  xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		      //document.getElementById("demo").innerHTML =
+		      //this.responseText;
+			  console.log(123)
+		    }
+		  };
+		  xhttp.open("POST", "/del", true);
+		  xhttp.send(record_number);
+		}
+	</script>
 </body>
 </html>

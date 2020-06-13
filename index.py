@@ -70,14 +70,16 @@ def index():
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.nickname='{}'".format(str(request.form['keywords'])))
             results = cur.fetchall()
         output_text = []
-        output_text.append(results[0].keys())
+        col_names = results[0].keys()
+        new_col = 'actions'
+        #output_text.append(results[0].keys())
         for i in range(len(results)):
             tmp = []
-            for j in results[0].keys():
+            for j in col_names:
                 tmp.append(results[i][j])
             output_text.append(tmp)
         #return render_template('index.html', output_text=results)
-        return render_template('index.html', display_name=session['username'], output_text=output_text, search_options=option)
+        return render_template('index.html', display_name=session['username'], output_text=output_text, col_names=col_names, search_options=option, new_col=new_col)
 
 @app.route("/sql", methods=['GET', 'POST'])
 def sql():
@@ -99,6 +101,17 @@ def sql():
         
         return render_template('sql.html', input_text=input_text, output_text=output_text)
 
+@app.route("/del", methods=['GET', 'POST'])
+def delete():
+    if request.method == 'GET':
+        return 'Hello'
+    if request.method == "POST":
+        cur = mysql.connection.cursor()
+        print("DELETE FROM cost WHERE cost.record_number={};".format(int(request.data)))
+        cur.execute("DELETE FROM `cost` WHERE cost.record_number={};".format(int(request.data)))
+        mysql.connection.commit()
+        cur.close()
+        return 'Good'
 
 @app.route("/new", methods=['GET', 'POST'])
 def new():
@@ -183,6 +196,13 @@ def item():
         cur.close()
         output_text = 'Success!'
         return render_template('item.html', output_text=output_text)
+
+@app.route("/edit1", methods=['GET', 'POST'])
+def edit1():
+    if request.method == 'GET':
+        return render_template('edit1.html', display_name=session['username'])
+    if request.method == "POST":
+        return render_template('edit1.html', display_name=session['username'])
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
