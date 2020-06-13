@@ -140,6 +140,42 @@ def new_user():
         output_text = 'Success!'
         return render_template('new_user.html', output_text=output_text)
 
+@app.route("/profile", methods=['GET', 'POST'])
+def profile():
+    if request.method == 'GET':
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM `user_info` WHERE user_info.id={};".format(session['id']))
+        search_results = cur.fetchone()
+        if search_results is not None:
+            sex = search_results["sex"]
+            nickname = search_results["nickname"]
+            return render_template('profile.html', display_name=session['username'], userid=session['id'], sex=sex, nickname=nickname)
+        else:
+            return render_template('profile.html', display_name=session['username'], userid=session['id'])
+
+    if request.method == "POST":
+        sex = request.form["sex"]
+        nickname = request.form["nickname"]
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM `user_info` WHERE `id`={}".format(session['id']))
+        result = cur.fetchone()
+        if result==None:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO user_info(id, sex, nickname) VALUES (%s, %s, %s)", (session['id'], sex, nickname))
+            mysql.connection.commit()
+            cur.close()
+            output_text = 'Success!'
+        if result==True:
+            cur = mysql.connection.cursor()
+            cur.execute("UPDATE `user_info` SET `sex`={}, `nickname`='{}' WHERE `id`={}".format(sex, nickname, session['id']))
+            mysql.connection.commit()
+            cur.close()
+            output_text = 'Success!'
+        return render_template('profile.html', output_text=output_text, display_name=session['username'], userid=session['id'], sex=sex, nickname=nickname)
+
+
+
 @app.route("/new_cost", methods=['GET', 'POST'])
 def new_cost():
     if request.method == 'GET':
