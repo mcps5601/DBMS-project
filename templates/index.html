@@ -45,7 +45,11 @@
 				<td style="text-align:center">{{ d }}</td>
 			{% endfor %}
 				<td style="text-align:center">
-				<button onclick="loadDoc({{row[2]}})">編輯</button><button onclick="loadDoc({{row[2]}})">刪除</button></td>
+				<button>
+					<a href='/edit1?record_number={{row[2]}}'>編輯</a>
+				</button>
+				<button onclick="delrecord({{row[2]}})">刪除</button>
+				</td>
 			</tr>
 		{% endfor %}
 	</table>
@@ -54,7 +58,7 @@
 		function lalala(record_number){
 			console.log(record_number)
 		}
-		function loadDoc(record_number) {
+		function delrecord(record_number) {
 			console.log(record_number)
 		  var xhttp = new XMLHttpRequest();
 		  xhttp.onreadystatechange = function() {

@@ -200,9 +200,12 @@ def item():
 @app.route("/edit1", methods=['GET', 'POST'])
 def edit1():
     if request.method == 'GET':
-        return render_template('edit1.html', display_name=session['username'])
+        record_number = request.args.get('record_number')
+        return render_template('edit1.html', display_name=session['username'], record_number=record_number)
     if request.method == "POST":
-        return render_template('edit1.html', display_name=session['username'])
+        record_number = int(request.data)
+        return redirect(f"http://localhost:5000/edit1?record_number={record_number}", code=302)
+        #return render_template('edit1.html', display_name=session['username'], record_number=record_number)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
