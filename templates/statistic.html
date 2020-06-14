@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<title>P78081057's DBMS</title>
+</head>
+
+<body>
+	<form method="POST" action="/profile">
+	<div style="text-align:center"><h1>This is a DBMS demo.</h1></div>
+	<center>
+	<a href="/">Logout</a>
+	<br><br>
+		你好！{{display_name}}
+	<br><br>
+	<a href="/index">回到查詢頁面</a><br><br>
+	目前總記錄筆數: {{numbers_record}}<br>
+	目前總花費金額：{{sum_record}}<br>
+	金額最大的記錄: {{max_record}}<br>
+	金額最小的記錄: {{min_record}}<br>
+	總平均花費金額: {{avg_record}}<br>
+	花費超過1萬的人: {{people}}
+
+	<br>
+	<input type = "submit" value="送出">
+	{{ output_text }}
+	<br>
+	<br>
+</body>
+</html>

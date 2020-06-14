@@ -77,6 +77,34 @@ def index():
             else:
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND cost.item='{}'".format(str(request.form['keywords'])))
             results = cur.fetchall()
+        
+        ## 不包含某人的資料查詢 (NOT IN)
+        if option == '不包含人名':
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.username NOT IN ('{}')".format(str(request.form['keywords'])))
+            results = cur.fetchall()
+
+        ## 有填寫詳細資料的 (EXIST)
+        if option =="有填寫商品細節":
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE EXISTS (SELECT record_number FROM item_details WHERE cost.record_number=item_details.record_number) AND users.id=cost.userid")
+            results = cur.fetchall() 
+
+        if option =="有填寫購物細節":
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE EXISTS (SELECT record_number FROM purchase_info WHERE cost.record_number=purchase_info.record_number) AND users.id=cost.userid")
+            results = cur.fetchall()                
+
+        ## 沒有填寫詳細資料的 (NOT EXISTS)
+        if option =="沒有填寫商品細節":
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE NOT EXISTS (SELECT record_number FROM item_details WHERE cost.record_number=item_details.record_number) AND users.id=cost.userid")
+            results = cur.fetchall()
+        
+        if option =="沒有填寫購物細節":
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE NOT EXISTS (SELECT record_number FROM purchase_info WHERE cost.record_number=purchase_info.record_number) AND users.id=cost.userid")
+            results = cur.fetchall()            
 
         output_text = []
         col_names = results[0].keys()
@@ -354,6 +382,51 @@ def update():
             output_text = 'Success!'
             return render_template('edit1.html', display_name=session['username'],
                                 record_number=record_number, price=price, item=item, editer=editer, itemtype=itemtype, brand=brand, date=date, place=place, output_text=output_text)
+
+@app.route("/statistic", methods=['GET'])
+def statistic():
+    if request.method == 'GET':
+        # COUNT: 計算目前所有筆數
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT COUNT(`record_number`) FROM `cost`')
+        numbers_record = cur.fetchone().get('COUNT(`record_number`)')
+        cur.close()
+
+        # SUM: 統計目前記帳所有金額
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT SUM(`price`) FROM `cost`')
+        sum_record = cur.fetchone().get('SUM(`price`)')
+        cur.close()
+
+        # MAX: 取出金額最大的紀錄
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE cost.price=( SELECT MAX(`price`) FROM cost ) AND users.id=cost.userid')
+        max_record = cur.fetchone()
+        cur.close()
+
+        # MIN: 取出金額最小的紀錄
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE cost.price=( SELECT MIN(`price`) FROM cost ) AND users.id=cost.userid')
+        min_record = cur.fetchone()
+        cur.close()
+
+        # AVG: 平均花費
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT AVG(`price`) FROM `cost`')
+        avg_record = cur.fetchone().get('AVG(`price`)')
+        cur.close()
+
+        # HAVING: 取出花費超過10000的人
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT `username`, SUM(`price`) FROM users, cost WHERE users.id=cost.userid GROUP BY users.username HAVING SUM(`price`) > 10000')
+        results = cur.fetchall()
+
+        people = []
+        for i in range(len(results)):
+            people.append(results[i]['username'])
+        cur.close()
+        return render_template('statistic.html', display_name=session['username'], numbers_record=numbers_record, sum_record=sum_record,
+                            max_record=max_record, min_record=min_record, avg_record=avg_record, people=people)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True)
