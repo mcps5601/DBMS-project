@@ -44,14 +44,14 @@ def index():
         return render_template("index.html", display_name=session['username'])
         #return render_template("login.html")
     if request.method == "POST":
-        details = request.form
+        #details = request.form
         option = request.form['search_options']
         if option == 'ID':
             cur = mysql.connection.cursor()
             if request.form['keywords']=='all':
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid")
             else:
-                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.id={}".format(int(request.form['keywords'])))
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.ID IN ('{}')".format(int(request.form['keywords'])))
             results = cur.fetchall()
 
         if option == 'Username':
@@ -59,7 +59,7 @@ def index():
             if request.form['keywords']=='all':
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid")
             else:
-                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.username='{}'".format(str(request.form['keywords'])))
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid AND users.username IN ('{}')".format(str(request.form['keywords'])))
             results = cur.fetchall()
 
         if option == 'Nickname':
@@ -67,7 +67,7 @@ def index():
             if request.form['keywords']=='all':
                 cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost WHERE users.id=cost.userid")
             else:
-                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost, user_info WHERE users.id=cost.userid AND users.id=user_info.id AND user_info.nickname='{}'".format(str(request.form['keywords'])))
+                cur.execute("SELECT `userid`, `username`, `record_number`, `price`, `item` FROM users, cost, user_info WHERE users.id=cost.userid AND users.id=user_info.id AND user_info.nickname IN ('{}')".format(str(request.form['keywords'])))
             results = cur.fetchall()
 
         if option == 'Itemname':
